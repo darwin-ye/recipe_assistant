@@ -64,7 +64,8 @@ You need to have **Ollama** installed and running on your system.
 
 The agent's logic is defined using a LangGraph state machine, which orchestrates a sequence of nodes to handle the conversation flow.
 
-!(https://i.imgur.com/B9B5o3p.png)
+<img width="746" height="722" alt="Screenshot 2025-09-15 at 15 02 15" src="https://github.com/user-attachments/assets/2a8c6106-74da-4fc6-bec5-517c00fc69fe" />
+
 
 <br>
 
