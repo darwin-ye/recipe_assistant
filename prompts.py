@@ -1,4 +1,5 @@
 # prompts.py
+from langchain_core.prompts import ChatPromptTemplate, MessagesPlaceholder
 
 # A system prompt to set the context for the LLM
 SYSTEM_PROMPT = """
@@ -17,6 +18,16 @@ Dietary needs: {dietary_needs}
 ---
 Recipe:
 """
+
+# A prompt template for the ReAct agent
+AGENT_PROMPT = ChatPromptTemplate.from_messages(
+    [
+        ("system", SYSTEM_PROMPT),
+        MessagesPlaceholder(variable_name="chat_history"),
+        ("human", "{input}"),
+        MessagesPlaceholder(variable_name="agent_scratchpad"),
+    ]
+)
 
 # A simple user-facing prompt to ask about ingredients
 INGREDIENTS_PROMPT = "Hello! I can help you find a recipe. What ingredients do you have on hand? Please provide them as a comma-separated list."
