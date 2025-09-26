@@ -1,4 +1,4 @@
-# main.py - Clean Simplified Version
+# main.py - Complete Recipe Assistant with All Fixes Applied
 from typing import TypedDict, Literal, Annotated, List, Optional, Dict, Any
 from langgraph.graph import StateGraph, END
 from langchain_core.messages import BaseMessage, HumanMessage, AIMessage
@@ -14,332 +14,436 @@ from prompts import (
     NUTRITION_PROMPT_TEMPLATE,
 )
 
+# Import the new structured models
+from recipe_models import (
+    Recipe, 
+    RecipeDatabase, 
+    RecipeParser,
+    create_recipe_from_llm_response,
+    add_nutrition_to_recipe
+)
+
 # ========================================================================
-# 1. SIMPLIFIED STATE - Only what we actually need
+# 1. UPDATED STATE - Now uses structured recipes
 # ========================================================================
 class RecipeState(TypedDict):
     messages: Annotated[List[BaseMessage], add_messages]
-    # Recipe storage: ingredient -> recipe content
-    recipes: Dict[str, str]
-    # Current conversation context
-    last_recipe: Optional[str]
+    # Current recipe being worked on
+    current_recipe: Optional[Recipe]
+    # Recipe database instance
+    recipe_db: RecipeDatabase
     # What the user wants to do next
     next_action: Optional[str]
+    # Last search results for reference
+    last_search_results: Optional[List[tuple]]
+
+# Initialize the database globally
+recipe_database = RecipeDatabase()
 
 # ========================================================================
-# 2. RECIPE STORAGE UTILITIES
-# ========================================================================
-class RecipeManager:
-    @staticmethod
-    def normalize_ingredient(ingredient: str) -> str:
-        """Normalize ingredient names for consistent storage"""
-        return ingredient.lower().strip()
-    
-    @staticmethod
-    def store_recipe(state: RecipeState, ingredient: str, recipe: str) -> None:
-        """Store a recipe with normalized ingredient key"""
-        key = RecipeManager.normalize_ingredient(ingredient)
-        if "recipes" not in state:
-            state["recipes"] = {}
-        state["recipes"][key] = recipe
-        state["last_recipe"] = recipe
-        print(f"DEBUG: Stored recipe for '{key}'")
-    
-    @staticmethod
-    def find_recipe(state: RecipeState, user_input: str) -> Optional[tuple[str, str]]:
-        """Find a recipe based on user input. Returns (ingredient, recipe) or None"""
-        recipes = state.get("recipes", {})
-        user_input = user_input.lower()
-        
-        # Direct ingredient match
-        for ingredient in recipes.keys():
-            if ingredient in user_input:
-                print(f"DEBUG: Found recipe for '{ingredient}'")
-                return ingredient, recipes[ingredient]
-        
-        # Pattern matching for recipe requests
-        patterns = [
-            r'(?:recipe|dish|meal).*?(beef|lamb|chicken|pork|fish|salmon|pasta)',
-            r'(beef|lamb|chicken|pork|fish|salmon|pasta).*?(?:recipe|dish|meal)',
-            r'(?:the|my|that)\s+(beef|lamb|chicken|pork|fish|salmon|pasta)',
-        ]
-        
-        for pattern in patterns:
-            matches = re.findall(pattern, user_input)
-            for match in matches:
-                normalized = RecipeManager.normalize_ingredient(match)
-                if normalized in recipes:
-                    print(f"DEBUG: Pattern matched '{normalized}'")
-                    return normalized, recipes[normalized]
-        
-        print("DEBUG: No recipe found")
-        return None
-
-# ========================================================================
-# 3. INTENT CLASSIFICATION
+# 2. INTENT CLASSIFICATION (FIXED for better LLM response handling)
 # ========================================================================
 def classify_intent_with_llm(user_input: str, state: RecipeState) -> str:
-    """Use LLM to classify user intent - much more robust than keyword matching"""
+    """Use LLM to classify user intent - fixed to handle LLM response format"""
     
-    recipes = state.get("recipes", {})
-    available_ingredients = list(recipes.keys())
-    has_recipes = len(recipes) > 0
-    has_last_recipe = bool(state.get("last_recipe"))
+    recipe_db = state.get("recipe_db", recipe_database)
+    has_recipes = len(recipe_db.recipes) > 0
+    has_current_recipe = state.get("current_recipe") is not None
     
-    # Build context for the LLM
+    # Simplified prompt for better LLM response
     context = f"""
-Available recipes in storage: {available_ingredients if available_ingredients else "None"}
-Has previous/last recipe available: {has_last_recipe}
-User request: "{user_input}"
+User said: "{user_input}"
 
-Classify the user's intent into ONE of these categories:
+What does the user want to do? Choose ONE:
+- search_recipes (find existing recipes)  
+- show_recent (see recent/previous recipes)
+- nutrition (get nutritional info)
+- new_recipe (create new recipe)
+- show_similar (find similar recipes)
 
-1. "show_previous" - User wants to see the most recent/last/previous recipe
-   Examples: "previous recipe", "last one", "show me the recent recipe", "what was that recipe"
-
-2. "show_specific" - User wants a specific recipe from history by ingredient
-   Examples: "beef recipe", "show me the chicken dish", "I want that lamb recipe from before"
-
-3. "nutrition" - User wants nutritional information about a recipe
-   Examples: "nutrition info", "calories", "how healthy is it", "nutritional breakdown"
-
-4. "new_recipe" - User wants to create a new recipe (DEFAULT)
-   Examples: "new recipe", "cook something", "make a dish", "create recipe"
-
-Respond with ONLY the category name (show_previous, show_specific, nutrition, or new_recipe).
+Reply with ONLY the option name, nothing else.
 """
     
     try:
-        print(f"DEBUG: Asking LLM to classify: '{user_input}'")
+        print(f"DEBUG: Classifying intent for: '{user_input}'")
         
-        from llm import llm  # Import the LLM instance
+        from llm import llm
         response = llm.invoke(context)
-        intent = response.content.strip().lower()
+        raw_intent = response.content.strip()
         
-        # Ensure we get a valid intent
-        valid_intents = ["show_previous", "show_specific", "nutrition", "new_recipe"]
+        # Clean up the LLM response - extract just the intent name
+        # Handle various response formats
+        intent = raw_intent.lower()
+        
+        # Remove quotes, numbers, periods, etc.
+        intent = re.sub(r'["\'\d.\-\*]', '', intent).strip()
+        
+        # Extract intent name if it's in a sentence
+        valid_intents = ["search_recipes", "show_recent", "nutrition", "new_recipe", "show_similar"]
+        
+        # Look for valid intent in the response
+        for valid in valid_intents:
+            if valid in intent:
+                intent = valid
+                break
+        
+        # If still not valid, use fallback
         if intent not in valid_intents:
-            print(f"DEBUG: LLM returned invalid intent '{intent}', defaulting to new_recipe")
-            intent = "new_recipe"
+            print(f"DEBUG: Extracted intent '{intent}' not valid, using fallback")
+            intent = classify_intent_fallback(user_input, state)
         
-        print(f"DEBUG: LLM classified intent as: '{intent}'")
+        print(f"DEBUG: Classified as: '{intent}'")
         return intent
         
     except Exception as e:
-        print(f"DEBUG: Error in LLM intent classification: {e}, falling back to keyword matching")
-        # Fallback to simple keyword matching if LLM fails
+        print(f"DEBUG: LLM classification failed: {e}")
         return classify_intent_fallback(user_input, state)
 
 def classify_intent_fallback(user_input: str, state: RecipeState) -> str:
-    """Fallback keyword-based classification if LLM fails"""
+    """Enhanced fallback classification - better pattern matching"""
     user_input = user_input.lower().strip()
     
-    # Previous/last recipe
-    previous_keywords = ["previous", "last", "recent", "earlier", "before"]
-    if any(word in user_input for word in previous_keywords):
-        return "show_previous"
+    # Search keywords
+    search_keywords = ["find", "search", "show me", "recipes with", "dishes with", "what recipes"]
+    if any(word in user_input for word in search_keywords):
+        return "search_recipes"
     
-    # Specific recipe lookup
-    recipe_found = RecipeManager.find_recipe(state, user_input)
-    if recipe_found:
-        return "show_specific"
+    # Recent/history/previous keywords - ENHANCED
+    recent_keywords = ["recent", "latest", "history", "previous", "past", "earlier", "last", "see recipes", "show recipes"]
+    if any(word in user_input for word in recent_keywords):
+        return "show_recent"
     
-    # Nutrition info
-    nutrition_keywords = ["nutrition", "calories", "protein", "nutrients", "nutritional"]
+    # Similar recipes
+    similar_keywords = ["similar", "like this", "more like", "same as"]
+    if any(word in user_input for word in similar_keywords):
+        return "show_similar"
+    
+    # Nutrition
+    nutrition_keywords = ["nutrition", "calories", "protein", "healthy", "nutritional"]
     if any(word in user_input for word in nutrition_keywords):
         return "nutrition"
+    
+    # New recipe - be more specific
+    new_keywords = ["new recipe", "create", "make", "cook", "generate"]
+    if any(word in user_input for word in new_keywords):
+        return "new_recipe"
     
     # Default to new recipe
     return "new_recipe"
 
 # ========================================================================
-# 4. MAIN CONVERSATION NODE
+# 3. MAIN CONVERSATION NODE
 # ========================================================================
 def conversation_node(state: RecipeState):
-    """Main conversation handler - processes user input and decides what to do"""
+    """Main conversation handler"""
     
-    # Get user input
-    print("\nAI: Hello! I can help you with recipes. What would you like to do?")
-    print("- Ask for a new recipe")
-    print("- Get a previous recipe")
-    print("- Get nutritional info")
-    user_input = input("User: ")
+    # Ensure recipe_db is in state
+    if "recipe_db" not in state:
+        state["recipe_db"] = recipe_database
     
-    # Classify what the user wants using LLM
+    recipe_count = len(state["recipe_db"].recipes)
+    
+    print("\n" + "="*50)
+    print(f"AI: Hello! I have {recipe_count} recipes in my database.")
+    print("What would you like to do?")
+    print("- Search for recipes (e.g., 'find chicken recipes')")
+    print("- Create a new recipe")
+    print("- See recent recipes")
+    if state.get("current_recipe"):
+        print("- Get nutritional info for the current recipe")
+        print("- Find similar recipes")
+    
+    user_input = input("\nUser: ")
+    
+    # Classify intent
     intent = classify_intent_with_llm(user_input, state)
-    print(f"DEBUG: LLM classified intent as '{intent}'")
     
-    # Add user message to conversation
+    # Add user message
     user_msg = HumanMessage(content=user_input)
     
     return {
         "messages": [user_msg],
-        "next_action": intent
+        "next_action": intent,
+        "recipe_db": state["recipe_db"]
     }
 
 # ========================================================================
-# 5. ACTION HANDLERS
+# 4. SEARCH RECIPES NODE
 # ========================================================================
-def show_previous_recipe_node(state: RecipeState):
-    """Show the last generated recipe"""
-    last_recipe = state.get("last_recipe")
+def search_recipes_node(state: RecipeState):
+    """Search for recipes using semantic search"""
+    last_message = state["messages"][-1].content if state["messages"] else ""
+    recipe_db = state.get("recipe_db", recipe_database)
     
-    print(f"DEBUG: Looking for last_recipe in state")
-    print(f"DEBUG: last_recipe exists: {bool(last_recipe)}")
-    print(f"DEBUG: recipes in storage: {list(state.get('recipes', {}).keys())}")
+    if not recipe_db.recipes:
+        response = "No recipes in the database yet. Let's create your first recipe!"
+        print(f"\nAI: {response}")
+        ai_msg = AIMessage(content=response)
+        return {
+            "messages": [ai_msg],
+            "next_action": "new_recipe",
+            "recipe_db": recipe_db
+        }
     
-    if not last_recipe:
-        # Try to get the most recent recipe from storage
-        recipes = state.get("recipes", {})
-        if recipes:
-            # Get the last added recipe (this is a simple approach)
-            last_key = list(recipes.keys())[-1]
-            last_recipe = recipes[last_key]
-            print(f"DEBUG: Retrieved last recipe for '{last_key}' from storage")
-        else:
-            response = "I don't have any previous recipes to show. Let's create a new one!"
-            next_action = "new_recipe"
-            ai_msg = AIMessage(content=response)
-            print(f"\nAI: {response}")
-            return {
-                "messages": [ai_msg],
-                "next_action": next_action
-            }
+    # Perform semantic search
+    print("\nAI: Searching for recipes...")
+    results = recipe_db.search(last_message, top_k=5)
     
-    response = f"Here's your previous recipe:\n\n{last_recipe}\n\nWould you like nutritional info? (yes/no)"
-    next_action = "await_nutrition_response"
+    if not results:
+        response = "I couldn't find any recipes matching your search. Let's create a new one!"
+        print(f"\nAI: {response}")
+        user_input = input("User: ")
+        user_msg = HumanMessage(content=user_input)
+        ai_msg = AIMessage(content=response)
+        return {
+            "messages": [ai_msg, user_msg],
+            "next_action": "new_recipe" if "yes" in user_input.lower() else "continue",
+            "recipe_db": recipe_db
+        }
     
-    ai_msg = AIMessage(content=response)
+    # Display search results
+    response_parts = [f"Found {len(results)} matching recipes:\n"]
+    for i, (recipe_id, recipe, score) in enumerate(results[:3]):  # Show top 3
+        response_parts.append(f"\n{i+1}. **{recipe.title}**")
+        if recipe.description:
+            response_parts.append(f"   {recipe.description}")
+        response_parts.append(f"   Main ingredients: {', '.join(recipe.main_ingredients[:3])}")
+        if recipe.dietary_tags:
+            response_parts.append(f"   Dietary: {', '.join(recipe.dietary_tags)}")
+        response_parts.append(f"   Match score: {score:.0%}")
+    
+    response_parts.append("\n\nWhich recipe would you like to see? (Enter number, or 'new' for a new recipe)")
+    response = "\n".join(response_parts)
     print(f"\nAI: {response}")
     
     user_input = input("User: ")
     user_msg = HumanMessage(content=user_input)
-    next_action = "nutrition" if "yes" in user_input.lower() else "continue"
+    ai_msg = AIMessage(content=response)
+    
+    # Process user selection
+    current_recipe = None
+    if user_input.strip().lower() == 'new':
+        next_action = "new_recipe"
+    else:
+        try:
+            selection = int(user_input.strip()) - 1
+            if 0 <= selection < len(results):
+                _, selected_recipe, _ = results[selection]
+                current_recipe = selected_recipe
+                
+                # Display the selected recipe
+                recipe_display = selected_recipe.to_display_string()
+                print(f"\nAI: Here's your recipe:\n\n{recipe_display}")
+                print("\nWould you like nutritional info, similar recipes, or something else?")
+                
+                followup_input = input("User: ")
+                followup_msg = HumanMessage(content=followup_input)
+                
+                # Determine next action based on followup
+                if "nutrition" in followup_input.lower():
+                    next_action = "nutrition"
+                elif "similar" in followup_input.lower():
+                    next_action = "show_similar"
+                else:
+                    next_action = "continue"
+                
+                return {
+                    "messages": [ai_msg, user_msg, followup_msg],
+                    "current_recipe": selected_recipe,
+                    "last_search_results": results,
+                    "next_action": next_action,
+                    "recipe_db": recipe_db
+                }
+            else:
+                next_action = "continue"
+        except (ValueError, IndexError):
+            next_action = "continue"
     
     return {
         "messages": [ai_msg, user_msg],
-        "last_recipe": last_recipe,  # Make sure this is set for nutrition
-        "next_action": next_action
+        "current_recipe": current_recipe,
+        "last_search_results": results,
+        "next_action": next_action,
+        "recipe_db": recipe_db
     }
 
-def show_specific_recipe_node(state: RecipeState):
-    """Show a specific recipe from history using LLM to find the right one"""
-    last_message = state["messages"][-1].content if state["messages"] else ""
-    recipes = state.get("recipes", {})
+# ========================================================================
+# 5. SHOW RECENT RECIPES NODE
+# ========================================================================
+def show_recent_recipes_node(state: RecipeState):
+    """Show recently created recipes"""
+    recipe_db = state.get("recipe_db", recipe_database)
     
-    if not recipes:
-        response = "I don't have any recipes stored yet. Let's create a new one!"
-        next_action = "new_recipe"
-        ai_msg = AIMessage(content=response)
+    recent_recipes = recipe_db.get_recent_recipes(limit=5)
+    
+    if not recent_recipes:
+        response = "No recipes in the database yet. Let's create your first recipe!"
         print(f"\nAI: {response}")
+        ai_msg = AIMessage(content=response)
         return {
             "messages": [ai_msg],
-            "next_action": next_action
+            "next_action": "new_recipe",
+            "recipe_db": recipe_db
         }
     
-    # Use LLM to find the best matching recipe
-    recipe_context = f"""
-User request: "{last_message}"
-Available recipes: {list(recipes.keys())}
-
-The user is asking for a specific recipe from their history. Which recipe key from the available recipes best matches their request?
-
-Respond with ONLY the exact recipe key from the list, or "none" if no good match exists.
-"""
+    response_parts = [f"Here are your {len(recent_recipes)} most recent recipes:\n"]
+    for i, recipe in enumerate(recent_recipes, 1):
+        response_parts.append(f"\n{i}. **{recipe.title}**")
+        response_parts.append(f"   Created: {recipe.created_at.strftime('%Y-%m-%d %H:%M')}")
+        response_parts.append(f"   Main ingredients: {', '.join(recipe.main_ingredients[:3])}")
+    
+    response_parts.append("\n\nWhich recipe would you like to see? (Enter number)")
+    response = "\n".join(response_parts)
+    print(f"\nAI: {response}")
+    
+    user_input = input("User: ")
+    user_msg = HumanMessage(content=user_input)
+    ai_msg = AIMessage(content=response)
     
     try:
-        from llm import llm
-        response = llm.invoke(recipe_context)
-        matched_key = response.content.strip().lower()
-        
-        if matched_key in recipes:
-            recipe = recipes[matched_key]
-            state["last_recipe"] = recipe  # Update for potential nutrition requests
+        selection = int(user_input.strip()) - 1
+        if 0 <= selection < len(recent_recipes):
+            selected_recipe = recent_recipes[selection]
             
-            # Display the core ingredient name nicely
-            display_ingredient = matched_key.replace(" recipe", "").replace(" dish", "").replace(" meal", "").strip()
-            response = f"Here's your {display_ingredient} recipe:\n\n{recipe}\n\nWould you like nutritional info? (yes/no)"
-            print(f"\nAI: {response}")
-            user_input = input("User: ")
-            user_msg = HumanMessage(content=user_input)
-            next_action = "nutrition" if "yes" in user_input.lower() else "continue"
+            # Display the recipe
+            recipe_display = selected_recipe.to_display_string()
+            print(f"\nAI: Here's your recipe:\n\n{recipe_display}")
+            print("\nWhat would you like to do next?")
             
-            ai_msg = AIMessage(content=response)
+            followup_input = input("User: ")
+            followup_msg = HumanMessage(content=followup_input)
+            
             return {
-                "messages": [ai_msg, user_msg],
-                "last_recipe": recipe,
-                "recipes": recipes,
-                "next_action": next_action
+                "messages": [ai_msg, user_msg, followup_msg],
+                "current_recipe": selected_recipe,
+                "next_action": "continue",
+                "recipe_db": recipe_db
             }
-        else:
-            print(f"DEBUG: LLM couldn't match '{matched_key}' to available recipes")
-            
-    except Exception as e:
-        print(f"DEBUG: Error in LLM recipe matching: {e}")
+    except (ValueError, IndexError):
+        pass
     
-    # Fallback: try the original RecipeManager approach
-    recipe_result = RecipeManager.find_recipe(state, last_message)
-    if recipe_result:
-        ingredient, recipe = recipe_result
-        state["last_recipe"] = recipe
-        response = f"Here's your {ingredient} recipe:\n\n{recipe}\n\nWould you like nutritional info? (yes/no)"
+    return {
+        "messages": [ai_msg, user_msg],
+        "next_action": "continue",
+        "recipe_db": recipe_db
+    }
+
+# ========================================================================
+# 6. SHOW SIMILAR RECIPES NODE
+# ========================================================================
+def show_similar_recipes_node(state: RecipeState):
+    """Find recipes similar to the current one"""
+    recipe_db = state.get("recipe_db", recipe_database)
+    current_recipe = state.get("current_recipe")
+    
+    if not current_recipe:
+        response = "No current recipe selected. Please search for or create a recipe first."
+        print(f"\nAI: {response}")
+        ai_msg = AIMessage(content=response)
+        return {
+            "messages": [ai_msg],
+            "next_action": "continue",
+            "recipe_db": recipe_db
+        }
+    
+    print(f"\nAI: Finding recipes similar to '{current_recipe.title}'...")
+    
+    similar = recipe_db.search_engine.find_similar_recipes(
+        current_recipe, 
+        recipe_db.recipes, 
+        top_k=3
+    )
+    
+    if not similar:
+        response = f"No similar recipes found. Would you like to create a variation of '{current_recipe.title}'?"
         print(f"\nAI: {response}")
         user_input = input("User: ")
         user_msg = HumanMessage(content=user_input)
-        next_action = "nutrition" if "yes" in user_input.lower() else "continue"
-        
         ai_msg = AIMessage(content=response)
+        
+        next_action = "new_recipe" if "yes" in user_input.lower() else "continue"
         return {
             "messages": [ai_msg, user_msg],
-            "last_recipe": recipe,
-            "recipes": recipes,
-            "next_action": next_action
+            "current_recipe": current_recipe,
+            "next_action": next_action,
+            "recipe_db": recipe_db
         }
     
-    # No match found
-    response = "I couldn't find that recipe. Let me help you create a new one!"
-    next_action = "new_recipe"
-    ai_msg = AIMessage(content=response)
+    response_parts = [f"Found {len(similar)} similar recipes:\n"]
+    for i, (recipe_id, recipe, score) in enumerate(similar, 1):
+        response_parts.append(f"\n{i}. **{recipe.title}**")
+        if recipe.description:
+            response_parts.append(f"   {recipe.description}")
+        response_parts.append(f"   Similarity: {score:.0%}")
+    
+    response_parts.append("\n\nWhich recipe would you like to see? (Enter number)")
+    response = "\n".join(response_parts)
     print(f"\nAI: {response}")
+    
+    user_input = input("User: ")
+    user_msg = HumanMessage(content=user_input)
+    ai_msg = AIMessage(content=response)
+    
+    try:
+        selection = int(user_input.strip()) - 1
+        if 0 <= selection < len(similar):
+            _, selected_recipe, _ = similar[selection]
+            
+            recipe_display = selected_recipe.to_display_string()
+            print(f"\nAI: Here's the recipe:\n\n{recipe_display}")
+            
+            return {
+                "messages": [ai_msg, user_msg],
+                "current_recipe": selected_recipe,
+                "next_action": "continue",
+                "recipe_db": recipe_db
+            }
+    except (ValueError, IndexError):
+        pass
+    
     return {
-        "messages": [ai_msg],
-        "recipes": recipes,
-        "next_action": next_action
+        "messages": [ai_msg, user_msg],
+        "current_recipe": current_recipe,
+        "next_action": "continue",
+        "recipe_db": recipe_db
     }
 
+# ========================================================================
+# 7. CREATE NEW RECIPE NODE
+# ========================================================================
 def create_new_recipe_node(state: RecipeState):
-    """Create a new recipe through ingredient and dietary needs gathering"""
+    """Create a new recipe with structured format"""
+    recipe_db = state.get("recipe_db", recipe_database)
     
-    # Step 1: Get ingredients
+    # Get ingredients
     print(f"\nAI: {INGREDIENTS_PROMPT}")
     ingredients = input("User: ")
     
-    # Step 2: Get dietary needs
+    # Get dietary needs
     print(f"\nAI: {DIETARY_NEEDS_PROMPT}")
     dietary_needs = input("User: ")
     
-    # Step 3: Generate recipe
-    print("\nAI: Let me create a recipe for you...")
-    recipe = generate_recipe_with_llm(ingredients, dietary_needs)
+    # Generate recipe
+    print("\nAI: Creating your personalized recipe...")
+    llm_response = generate_recipe_with_llm(ingredients, dietary_needs)
     
-    # Step 4: Store the recipe and update state
-    if "recipes" not in state:
-        state["recipes"] = {}
+    # Convert to structured format
+    recipe = create_recipe_from_llm_response(llm_response, ingredients, dietary_needs)
     
-    key = RecipeManager.normalize_ingredient(ingredients)
-    state["recipes"][key] = recipe
-    print(f"DEBUG: Stored recipe for '{key}'")
-    print(f"DEBUG: Total recipes in storage: {len(state['recipes'])}")
+    # Save to database
+    recipe_id = recipe_db.add_recipe(recipe)
+    print(f"DEBUG: Saved recipe '{recipe.title}' with ID: {recipe_id}")
     
-    # Step 5: Show recipe and ask about nutrition
-    response = f"Here's your recipe:\n\n{recipe}\n\nWould you like nutritional information? (yes/no)"
+    # Display the recipe
+    recipe_display = recipe.to_display_string()
+    response = f"Here's your new recipe:\n\n{recipe_display}\n\nWould you like nutritional information? (yes/no)"
     print(f"\nAI: {response}")
     
     user_input = input("User: ")
     
-    # Create messages for this interaction
+    # Create messages
     ingredient_msg = HumanMessage(content=ingredients)
-    dietary_msg = HumanMessage(content=dietary_needs) 
+    dietary_msg = HumanMessage(content=dietary_needs)
     ai_msg = AIMessage(content=response)
     user_response_msg = HumanMessage(content=user_input)
     
@@ -347,59 +451,73 @@ def create_new_recipe_node(state: RecipeState):
     
     return {
         "messages": [ingredient_msg, dietary_msg, ai_msg, user_response_msg],
-        "recipes": state["recipes"],
-        "last_recipe": recipe,  # Critical: Set this for nutrition analysis
+        "current_recipe": recipe,
+        "recipe_db": recipe_db,
         "next_action": next_action
     }
 
+# ========================================================================
+# 8. PROVIDE NUTRITION NODE
+# ========================================================================
 def provide_nutrition_node(state: RecipeState):
     """Provide nutritional information for the current recipe"""
-    last_recipe = state.get("last_recipe", "")
+    recipe_db = state.get("recipe_db", recipe_database)
+    current_recipe = state.get("current_recipe")
     
-    print(f"DEBUG: Nutrition node - last_recipe exists: {bool(last_recipe)}")
-    print(f"DEBUG: Nutrition node - recipes in state: {list(state.get('recipes', {}).keys())}")
+    if not current_recipe:
+        response = "No recipe selected. Please select or create a recipe first."
+        print(f"\nAI: {response}")
+        ai_msg = AIMessage(content=response)
+        return {
+            "messages": [ai_msg],
+            "next_action": "continue",
+            "recipe_db": recipe_db
+        }
     
-    if not last_recipe:
-        # Try to get from recipes if last_recipe is missing
-        recipes = state.get("recipes", {})
-        if recipes:
-            last_key = list(recipes.keys())[-1]
-            last_recipe = recipes[last_key]
-            print(f"DEBUG: Using recipe for '{last_key}' for nutrition analysis")
-        else:
-            response = "I don't have a recipe to analyze for nutrition."
-            ai_msg = AIMessage(content=response)
-            print(f"\nAI: {response}")
-            user_input = input("User: ")
-            user_msg = HumanMessage(content=user_input)
-            return {
-                "messages": [ai_msg, user_msg],
-                "next_action": "continue"
-            }
+    # Check if nutrition already exists
+    if current_recipe.nutrition and current_recipe.nutrition.calories:
+        nutrition_display = current_recipe.to_nutrition_string()
+    else:
+        # Generate nutrition info
+        print("\nAI: Analyzing nutritional content...")
+        
+        # Use the raw text if available, otherwise use display string
+        recipe_text = current_recipe.raw_text or current_recipe.to_display_string()
+        nutrition_text = generate_nutrition_info(recipe_text)
+        
+        # Parse and add to recipe
+        current_recipe = add_nutrition_to_recipe(current_recipe, nutrition_text)
+        
+        # Update in database
+        if current_recipe.id in recipe_db.recipes:
+            recipe_db.recipes[current_recipe.id] = current_recipe
+            recipe_db.save_recipes()
+        
+        nutrition_display = current_recipe.to_nutrition_string()
     
-    print("\nAI: Analyzing nutritional content...")
-    nutrition_info = generate_nutrition_info(last_recipe)
-    response = f"Nutritional Information:\n\n{nutrition_info}\n\n{ANOTHER_RECIPE_PROMPT}"
-    
+    response = f"{nutrition_display}\n\n{ANOTHER_RECIPE_PROMPT}"
     print(f"\nAI: {response}")
-    user_input = input("User: ")
     
+    user_input = input("User: ")
     ai_msg = AIMessage(content=response)
     user_msg = HumanMessage(content=user_input)
     
-    # The key fix: Always route back to continue (conversation) instead of trying to determine intent here
-    next_action = "continue"
-    
     return {
         "messages": [ai_msg, user_msg],
-        "last_recipe": last_recipe,  # Preserve the recipe
-        "recipes": state.get("recipes", {}),  # Preserve recipe storage
-        "next_action": next_action
+        "current_recipe": current_recipe,
+        "recipe_db": recipe_db,
+        "next_action": "continue"
     }
 
+# ========================================================================
+# 9. END CONVERSATION NODE
+# ========================================================================
 def end_conversation_node(state: RecipeState):
     """End the conversation gracefully"""
-    response = "Thanks for using the recipe assistant! Enjoy your cooking!"
+    recipe_db = state.get("recipe_db", recipe_database)
+    total_recipes = len(recipe_db.recipes)
+    
+    response = f"Thanks for using the Recipe Assistant! You now have {total_recipes} recipes in your collection. Enjoy cooking!"
     print(f"\nAI: {response}")
     
     ai_msg = AIMessage(content=response)
@@ -409,23 +527,31 @@ def end_conversation_node(state: RecipeState):
     }
 
 # ========================================================================
-# 6. ROUTING FUNCTION
+# 10. ROUTING FUNCTION
 # ========================================================================
-def route_next_action(state: RecipeState) -> Literal["show_previous", "show_specific", "new_recipe", "nutrition", "continue", "end"]:
-    """Simple routing based on next_action"""
+def route_next_action(state: RecipeState) -> Literal["search_recipes", "show_recent", "show_similar", "new_recipe", "nutrition", "continue", "end"]:
+    """Route to the next action based on state"""
     next_action = state.get("next_action", "continue")
     print(f"DEBUG: Routing to '{next_action}'")
+    
+    # Check for exit keywords
+    if state.get("messages"):
+        last_message = state["messages"][-1].content.lower()
+        if any(word in last_message for word in ["exit", "quit", "bye", "goodbye", "end"]):
+            return "end"
+    
     return next_action
 
 # ========================================================================
-# 7. BUILD THE GRAPH
+# 11. BUILD THE GRAPH
 # ========================================================================
 workflow = StateGraph(RecipeState)
 
-# Add nodes
+# Add all nodes
 workflow.add_node("conversation", conversation_node)
-workflow.add_node("show_previous", show_previous_recipe_node)
-workflow.add_node("show_specific", show_specific_recipe_node) 
+workflow.add_node("search_recipes", search_recipes_node)
+workflow.add_node("show_recent", show_recent_recipes_node)
+workflow.add_node("show_similar", show_similar_recipes_node)
 workflow.add_node("new_recipe", create_new_recipe_node)
 workflow.add_node("nutrition", provide_nutrition_node)
 workflow.add_node("end", end_conversation_node)
@@ -433,32 +559,34 @@ workflow.add_node("end", end_conversation_node)
 # Set entry point
 workflow.set_entry_point("conversation")
 
-# Add routing
+# Add routing from conversation node
 workflow.add_conditional_edges(
     "conversation",
     route_next_action,
     {
-        "show_previous": "show_previous",
-        "show_specific": "show_specific",
+        "search_recipes": "search_recipes",
+        "show_recent": "show_recent",
+        "show_similar": "show_similar",
         "new_recipe": "new_recipe",
         "nutrition": "nutrition",
         "continue": "conversation",
-        "end": END
+        "end": "end"
     }
 )
 
 # All action nodes route back to conversation or end
-for node in ["show_previous", "show_specific", "new_recipe", "nutrition"]:
+for node in ["search_recipes", "show_recent", "show_similar", "new_recipe", "nutrition"]:
     workflow.add_conditional_edges(
         node,
         route_next_action,
         {
-            "show_previous": "show_previous",
-            "show_specific": "show_specific", 
+            "search_recipes": "search_recipes",
+            "show_recent": "show_recent",
+            "show_similar": "show_similar",
             "new_recipe": "new_recipe",
             "nutrition": "nutrition",
             "continue": "conversation",
-            "end": END
+            "end": "end"
         }
     )
 
@@ -467,49 +595,48 @@ checkpointer = MemorySaver()
 app = workflow.compile(checkpointer=checkpointer)
 
 # ========================================================================
-# 8. MAIN LOOP
+# 12. MAIN LOOP
 # ========================================================================
 if __name__ == "__main__":
     config = {"configurable": {"thread_id": "recipe_session"}}
     
-    # Initialize state
+    # Initialize state with database
     current_state = {
         "messages": [],
-        "recipes": {},
-        "last_recipe": None,
+        "current_recipe": None,
+        "recipe_db": recipe_database,
         "next_action": "continue"
     }
     
-    print("🍳 Welcome to the Recipe Assistant!")
-    print("=" * 40)
+    print("🍳 Welcome to the AI Recipe Assistant!")
+    print("=" * 50)
+    print(f"📚 Loaded {len(recipe_database.recipes)} recipes from your collection")
+    print("=" * 50)
     
     try:
         while True:
-            # Invoke the workflow with current state
+            # Invoke the workflow
             result = app.invoke(current_state, config=config)
-            
-            print(f"DEBUG: Result next_action: {result.get('next_action')}")
-            print(f"DEBUG: Result has recipes: {bool(result.get('recipes'))}")
-            print(f"DEBUG: Result has last_recipe: {bool(result.get('last_recipe'))}")
             
             if result is None or result.get("next_action") == "end":
                 break
-                
-            # Update state for next iteration - preserve all important data
+            
+            # Update state for next iteration
             current_state = {
                 "messages": result.get("messages", []),
-                "recipes": result.get("recipes", current_state.get("recipes", {})),
-                "last_recipe": result.get("last_recipe", current_state.get("last_recipe")),
-                "next_action": result.get("next_action", "continue")
+                "current_recipe": result.get("current_recipe"),
+                "recipe_db": result.get("recipe_db", recipe_database),
+                "next_action": result.get("next_action", "continue"),
+                "last_search_results": result.get("last_search_results")
             }
             
-            print(f"DEBUG: Updated state - recipes: {list(current_state.get('recipes', {}).keys())}")
-            print(f"DEBUG: Updated state - has last_recipe: {bool(current_state.get('last_recipe'))}")
+            print(f"DEBUG: Current recipe: {current_state['current_recipe'].title if current_state.get('current_recipe') else 'None'}")
             
     except KeyboardInterrupt:
-        print("\n\nGoodbye! Happy cooking!")
+        print("\n\n🍽️ Goodbye! Happy cooking!")
+        print(f"📚 Your {len(recipe_database.recipes)} recipes have been saved.")
     except Exception as e:
         print(f"An error occurred: {e}")
         import traceback
         traceback.print_exc()
-        print("Please restart the application.")
+        print("Your recipes have been saved. Please restart the application.")

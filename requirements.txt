@@ -1,6 +1,19 @@
+# Core LangGraph and LangChain
 langgraph
 langchain
 langchain-community
 langchain-ollama
-python-dotenv
 langchain_core
+
+# Utilities
+python-dotenv
+pydantic>=2.0
+
+# For Semantic Search (Optional but recommended)
+sentence-transformers
+scikit-learn
+numpy
+
+# If you want to use other embedding models locally
+# torch  # Uncomment if you want local embeddings
+# transformers  # Uncomment for more model options
