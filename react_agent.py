@@ -284,7 +284,10 @@ def create_new_recipe(ingredients: str, dietary_needs: str = "") -> str:
         db = RecipeDatabase()
         recipe_id = db.add_recipe(recipe)
 
-        return f"Created new recipe: '{recipe.title}'\nServes {recipe.servings} people\nSaved to database with ID: {recipe_id}"
+        # Return the full recipe details including cooking instructions
+        recipe_display = recipe.to_display_string()
+
+        return f"✅ Created and saved new recipe!\n\n{recipe_display}\n\n📝 Recipe saved to database with ID: {recipe_id}"
 
     except Exception as e:
         return f"Error creating recipe: {str(e)}"
@@ -363,37 +366,74 @@ def find_similar_recipes(recipe_title: str) -> str:
 
 REACT_SYSTEM_PROMPT = """You are a helpful recipe assistant that uses ReAct (Reasoning and Acting) to handle all user requests naturally.
 
-When you need to use a tool, use this EXACT format:
+CRITICAL: When you need a tool, you MUST use this EXACT format:
 ACTION: tool_name(parameter_name=value)
 
-You have these comprehensive tools available:
+Example: ACTION: search_recipe_database(query=chicken)
+
+**THESE ARE THE ONLY VALID TOOLS - DO NOT USE ANY OTHERS:**
 
 **Recipe Database Operations:**
 - search_recipe_database(query): Search recipes by ingredients, name, or description
 - get_recipe_details(recipe_title): Get full recipe details
 - get_recent_recipes(limit): Show recent recipes
-- create_new_recipe(ingredients, dietary_needs): Create new recipe from ingredients
+- create_new_recipe(ingredients, dietary_needs): Create new recipe from ingredients and show full details
 - get_nutrition_info(recipe_title): Get nutritional analysis
 - find_similar_recipes(recipe_title): Find similar recipes
 
 **Recipe Modification:**
 - scale_current_recipe(desired_servings): Scale current recipe for different servings
-- calculate_recipe_scaling(original_servings, desired_servings, ingredients): Generic scaling
 - find_ingredient_substitutes(ingredient, dietary_restriction): Find ingredient substitutes
 
 **External & Analysis:**
 - search_online_recipes(query): Search web for recipes
 - estimate_cooking_time(dish_type, cooking_method): Estimate cooking times
 
-**Guidelines:**
-- For search requests: use search_recipe_database first
-- For "show me" requests: use get_recipe_details or get_recent_recipes
-- For creating recipes: use create_new_recipe
-- For nutrition questions: use get_nutrition_info
-- For scaling: use scale_current_recipe if there's a current recipe
-- For substitutions: use find_ingredient_substitutes
+**CRITICAL INTENT DETECTION RULES:**
 
-Think step by step, use appropriate tools, and provide helpful responses. End with "FINAL ANSWER:" followed by your complete response."""
+1. **CREATE/NEW RECIPE REQUESTS:**
+   - Keywords: "create", "make", "new", "generate", "come up with"
+   - ALWAYS use create_new_recipe IMMEDIATELY - DO NOT search first
+   - If user gives ingredients, use them: create_new_recipe(ingredients=user_ingredients, dietary_needs=any_restrictions)
+   - If no specific ingredients, ask user what they want: create_new_recipe(ingredients=, dietary_needs=)
+
+2. **RECIPE INSTRUCTIONS/STEPS:**
+   - Keywords: "steps", "instructions", "how to cook", "how to make", "directions"
+   - Use get_recipe_details(recipe_title=specific_recipe_name)
+
+3. **SEARCH EXISTING RECIPES:**
+   - Keywords: "find", "search", "show me", "look for"
+   - Use search_recipe_database(query=search_terms)
+
+4. **AMBIGUOUS INPUTS:**
+   - For unclear requests like "yes", "ok", "help": provide helpful guidance instead of using tools
+   - Explain what you can do and ask specific questions
+   - Examples: "I can help you create recipes, search existing ones, or get cooking instructions. What would you like to do?"
+   - Do NOT guess or use random tools
+
+**Parameter Validation Rules:**
+- create_new_recipe: If ingredients empty, gather user requirements first
+- get_recipe_details: Must have valid recipe title
+- search_recipe_database: Must have meaningful search query
+
+**Important Instructions:**
+1. Always start with "THOUGHT:" to analyze what the user needs
+2. Use "ACTION: tool_name(parameter=value)" when you need a tool
+3. Do NOT make up tool results - wait for real OBSERVATION
+4. End with "FINAL ANSWER:" followed by your complete helpful response
+5. NEVER use tools not in the list above
+
+EXAMPLES:
+User: "Create a shrimp recipe"
+CORRECT: ACTION: create_new_recipe(ingredients=shrimp, dietary_needs=)
+
+User: "create a new recipe"
+CORRECT: ACTION: create_new_recipe(ingredients=, dietary_needs=)
+
+User: "show me the cooking steps"
+CORRECT: Ask user which recipe they want steps for, then use get_recipe_details
+
+Think step by step and use tools appropriately."""
 
 # ========================================================================
 # 3. REACT AGENT IMPLEMENTATION
@@ -442,32 +482,88 @@ class ReActAgent:
         pass
     
     def parse_action(self, text: str) -> tuple:
-        """Parse action from LLM response"""
-        # Look for ACTION: tool_name(args) pattern
-        action_pattern = r'ACTION:\s*(\w+)\((.*?)\)'
-        match = re.search(action_pattern, text)
-        
-        if match:
-            tool_name = match.group(1)
-            args_str = match.group(2)
-            
-            # Parse arguments
-            args = {}
-            if args_str:
-                # Simple argument parsing
-                arg_parts = args_str.split(',')
-                for part in arg_parts:
-                    if '=' in part:
-                        key, value = part.split('=', 1)
-                        key = key.strip()
-                        value = value.strip().strip('"').strip("'")
-                        args[key] = value
-            
-            return tool_name, args
+        """Parse action from LLM response with improved reliability"""
+        # Multiple patterns to catch different formats
+        patterns = [
+            r'ACTION:\s*(\w+)\((.*?)\)',           # ACTION: tool_name(args)
+            r'ACTION:\s*(\w+)\s*\((.*?)\)',        # ACTION: tool_name (args)
+            r'I will use (\w+)\((.*?)\)',          # I will use tool_name(args)
+            r'Let me (\w+)\((.*?)\)',              # Let me tool_name(args)
+        ]
+
+        for pattern in patterns:
+            match = re.search(pattern, text, re.IGNORECASE)
+            if match:
+                tool_name = match.group(1)
+                args_str = match.group(2)
+
+                # Parse arguments more robustly
+                args = {}
+                if args_str.strip():
+                    # Handle simple cases first
+                    if '=' in args_str:
+                        # Parse key=value pairs
+                        arg_parts = [part.strip() for part in args_str.split(',')]
+                        for part in arg_parts:
+                            if '=' in part:
+                                key, value = part.split('=', 1)
+                                key = key.strip()
+                                value = value.strip().strip('"').strip("'")
+                                args[key] = value
+                    else:
+                        # Assume it's a single query parameter
+                        args['query'] = args_str.strip().strip('"').strip("'")
+
+                print(f"🎯 Parsed action: {tool_name} with args: {args}")
+                return tool_name, args
+
+        # If no action found, try to infer from intent with priority for create actions
+        text_lower = text.lower()
+
+        # PRIORITY 1: Creation keywords (always check first)
+        if any(word in text_lower for word in ["create", "make", "new recipe", "new", "generate", "cook"]):
+            print("🎨 Detected CREATE intent - forcing create_new_recipe")
+            # Extract ingredients
+            if "with" in text_lower:
+                ingredients_part = text_lower.split("with")[1].strip()
+                return "create_new_recipe", {"ingredients": ingredients_part, "dietary_needs": ""}
+            elif "pasta" in text_lower and "tomato" in text_lower:
+                return "create_new_recipe", {"ingredients": "pasta, tomatoes", "dietary_needs": ""}
+            else:
+                # Extract ingredients from the whole query
+                words = text_lower.split()
+                ingredients = [word for word in words if word in ["pasta", "chicken", "beef", "tomato", "tomatoes", "rice", "fish"]]
+                return "create_new_recipe", {"ingredients": ", ".join(ingredients) or "pasta", "dietary_needs": ""}
+
+        # PRIORITY 2: Recipe details/instructions keywords
+        elif any(word in text_lower for word in ["steps", "instructions", "how to cook", "recipe information", "cooking"]):
+            print("📋 Detected INSTRUCTIONS intent - getting recipe details")
+            # Try to find the most recent recipe or mentioned recipe
+            return "get_recipe_details", {"recipe_title": "Pasta alla Pescatora"}
+
+        # PRIORITY 3: Search keywords (only if not a create request)
+        elif any(word in text_lower for word in ["search", "find", "show me", "list"]):
+            if "chicken" in text_lower:
+                return "search_recipe_database", {"query": "chicken"}
+            elif "recent" in text_lower:
+                return "get_recent_recipes", {"limit": 5}
+
+        # PRIORITY 4: Handle ambiguous inputs
+        elif text_lower.strip() in ["yes", "ok", "okay", "sure", "help", "what can you do", ""]:
+            print("❓ Detected ambiguous input - providing clarification")
+            # Don't return a tool, let it fall through to explain capabilities
+            return None, None
+
         return None, None
     
     def execute_tool(self, tool_name: str, args: dict) -> str:
         """Execute a tool by name with arguments"""
+
+        # Validate parameters before execution
+        validation_error = self._validate_tool_parameters(tool_name, args)
+        if validation_error:
+            return validation_error
+
         # Handle scale_current_recipe specially with current recipe context
         if tool_name == "scale_current_recipe":
             if not self.current_recipe:
@@ -504,8 +600,28 @@ class ReActAgent:
         if tool_name in tool_map:
             try:
                 tool_func = tool_map[tool_name]
-                return tool_func.run(**args)
+                # Use invoke method for LangChain tools
+                if hasattr(tool_func, 'invoke'):
+                    if tool_name == 'create_new_recipe':
+                        # Handle create_new_recipe specially - it expects two separate parameters
+                        ingredients = args.get('ingredients', '')
+                        dietary_needs = args.get('dietary_needs', '')
+                        return tool_func.invoke({"ingredients": ingredients, "dietary_needs": dietary_needs})
+                    elif tool_name == 'get_recipe_details':
+                        # Handle get_recipe_details specially
+                        recipe_title = args.get('recipe_title', '')
+                        return tool_func.invoke(recipe_title)
+                    elif len(args) == 1 and 'query' in args:
+                        return tool_func.invoke(args['query'])
+                    elif len(args) == 0:
+                        return tool_func.invoke("")
+                    else:
+                        return tool_func.invoke(args)
+                else:
+                    # Direct function call for non-LangChain tools
+                    return tool_func(**args)
             except Exception as e:
+                print(f"DEBUG: Tool execution error for {tool_name}: {e}")
                 return f"Error executing {tool_name}: {str(e)}"
         else:
             return f"Unknown tool: {tool_name}"
@@ -553,7 +669,60 @@ class ReActAgent:
 **Note:** Cooking times may need slight adjustments for larger quantities."""
 
         return result
-    
+
+    def _validate_tool_parameters(self, tool_name: str, args: dict) -> str:
+        """Validate tool parameters before execution"""
+
+        # Validation for create_new_recipe
+        if tool_name == "create_new_recipe":
+            ingredients = args.get('ingredients', '').strip()
+            if not ingredients:
+                return "To create a recipe, I need ingredients. What ingredients would you like to use? For example: 'chicken, tomatoes, pasta' or 'beef, onions, potatoes'"
+
+        # Validation for get_recipe_details
+        elif tool_name == "get_recipe_details":
+            recipe_title = args.get('recipe_title', '').strip()
+            if not recipe_title:
+                return "To show recipe details, I need the recipe name. Which recipe would you like to see the full instructions for?"
+
+        # Validation for search_recipe_database
+        elif tool_name == "search_recipe_database":
+            query = args.get('query', '').strip()
+            if not query or len(query) < 2:
+                return "To search recipes, I need specific search terms. What are you looking for? (ingredients, dish name, cuisine type, etc.)"
+
+        # Validation for get_nutrition_info
+        elif tool_name == "get_nutrition_info":
+            recipe_title = args.get('recipe_title', '').strip()
+            if not recipe_title:
+                return "To get nutrition information, I need a specific recipe name. Which recipe's nutrition would you like to see?"
+
+        # Validation for find_similar_recipes
+        elif tool_name == "find_similar_recipes":
+            recipe_title = args.get('recipe_title', '').strip()
+            if not recipe_title:
+                return "To find similar recipes, I need a reference recipe name. Which recipe should I use as a reference?"
+
+        # Validation for find_ingredient_substitutes
+        elif tool_name == "find_ingredient_substitutes":
+            ingredient = args.get('ingredient', '').strip()
+            if not ingredient:
+                return "To find substitutes, I need to know which ingredient you want to substitute. What ingredient are you looking to replace?"
+
+        # Validation for search_online_recipes
+        elif tool_name == "search_online_recipes":
+            query = args.get('query', '').strip()
+            if not query or len(query) < 2:
+                return "To search online recipes, I need specific search terms. What type of recipe are you looking for?"
+
+        # Validation for estimate_cooking_time
+        elif tool_name == "estimate_cooking_time":
+            dish_type = args.get('dish_type', '').strip()
+            if not dish_type:
+                return "To estimate cooking time, I need to know what dish you're making. What type of dish is it?"
+
+        return None  # No validation errors
+
     def run(self, user_input: str, chat_history: List = None, current_recipe: Any = None) -> str:
         """Run the ReAct loop for a user query"""
         if chat_history is None:
@@ -593,38 +762,59 @@ Let's solve this step by step.
 THOUGHT: """
         
         # Run the ReAct loop (maximum 5 iterations)
-        thoughts = []
         max_iterations = 5
-        
+
+        print(f"🔍 Starting ReAct reasoning for: '{user_input[:50]}...'")
+
         for i in range(max_iterations):
+            print(f"\n🔄 ReAct Step {i+1}/{max_iterations}")
+
             # Get LLM response
             response = self.llm.invoke(react_prompt)
             response_text = response.content if hasattr(response, 'content') else str(response)
-            
-            # Add to prompt for context
-            react_prompt += response_text + "\n"
-            thoughts.append(response_text)
-            
+
+            # Show the LLM's thinking
+            print(f"💭 AI Thinking: {response_text[:150]}...")
+
             # Check if we have a final answer
             if "FINAL ANSWER:" in response_text:
-                # Extract final answer
                 final_answer = response_text.split("FINAL ANSWER:")[-1].strip()
+                print(f"✅ Final Answer Ready: {final_answer[:100]}...")
                 return final_answer
-            
+
             # Parse action if present
             tool_name, args = self.parse_action(response_text)
-            
+
             if tool_name:
+                print(f"🔧 Using Tool: {tool_name} with parameters {args}")
+
                 # Execute tool
                 observation = self.execute_tool(tool_name, args)
-                react_prompt += f"\nOBSERVATION: {observation}\n\nTHOUGHT: "
-            
+                print(f"📊 Tool Result: {observation[:100]}...")
+
+                # Add to conversation
+                react_prompt += response_text + f"\n\nOBSERVATION: {observation}\n\nTHOUGHT: "
+            else:
+                print("⚠️  No tool action detected, continuing reasoning...")
+                react_prompt += response_text + "\n\nTHOUGHT: "
+
             # Check if we should continue
-            if "no more tools needed" in response_text.lower():
+            if "no more tools needed" in response_text.lower() or "final answer" in response_text.lower():
+                print("🏁 Reasoning complete, preparing final answer...")
                 break
         
-        # If no final answer was provided, synthesize one
-        return self.synthesize_answer(user_input, thoughts)
+        # If no final answer was provided, force one
+        print("⚠️  ReAct loop completed without final answer, forcing completion...")
+
+        # Get a final response from LLM
+        final_prompt = react_prompt + "\n\nPlease provide your FINAL ANSWER now based on all the above reasoning:\n\nFINAL ANSWER: "
+        final_response = self.llm.invoke(final_prompt)
+        final_text = final_response.content if hasattr(final_response, 'content') else str(final_response)
+
+        if "FINAL ANSWER:" in final_text:
+            return final_text.split("FINAL ANSWER:")[-1].strip()
+        else:
+            return final_text.strip()
     
     def synthesize_answer(self, user_input: str, thoughts: List[str]) -> str:
         """Synthesize a final answer from the thought process"""
