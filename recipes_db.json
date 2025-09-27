@@ -271,5 +271,575 @@
     ],
     "created_at": "2025-09-26T15:08:07.273736",
     "raw_text": "Lamb's Golden Hour Stew\n\n**Serving size:** 4-6 servings\n\n**Ingredients:**\n\n* 1 pound boneless lamb shoulder or neck, cut into 2-inch pieces\n* 2 tablespoons olive oil\n* 1 large onion, chopped (about 3 cups)\n* 3 cloves garlic, minced (about 1 tablespoon)\n* 2 medium carrots, peeled and chopped (about 2 cups)\n* 2 stalks celery, chopped (about 1 cup)\n* 1 can (14.5 oz) diced tomatoes\n* 1 cup lamb broth or beef broth\n* 1 teaspoon dried oregano\n* Salt and pepper, to taste\n* Fresh parsley, chopped (optional)\n\n**Instructions:**\n\n1. Preheat the oven to 325\u00b0F (165\u00b0C).\n2. In a large Dutch oven or heavy pot, heat the olive oil over medium-high heat.\n3. Add the lamb pieces and cook until browned on all sides, about 5-7 minutes. Remove the lamb from the pot and set it aside.\n4. Reduce the heat to medium and add the chopped onion to the pot. Cook until the onion is translucent and starting to caramelize, stirring occasionally, about 10-12 minutes.\n5. Add the minced garlic and cook for an additional minute, stirring constantly to prevent burning.\n6. Add the chopped carrots and celery to the pot. Cook for 2-3 minutes, stirring occasionally, until they start to soften.\n7. Add the diced tomatoes, lamb broth or beef broth, dried oregano, salt, and pepper to the pot. Stir to combine.\n8. Return the browned lamb to the pot and bring the stew to a simmer.\n9. Cover the pot with a lid and transfer it to the preheated oven.\n10. Braise the stew for 2-3 hours or until the lamb is tender and falls apart easily. Check on the stew every hour, adding more liquid if necessary, and stirring occasionally.\n11. Remove the pot from the oven and let it cool slightly before serving.\n\n**Optional Tips:**\n\n* For added depth of flavor, add a few sprigs of fresh thyme or rosemary to the pot during the last 30 minutes of braising.\n* Serve the stew with crusty bread, over mashed potatoes, or with a side of roasted vegetables for a hearty meal.\n* To make ahead, prepare the stew up to step 9, then refrigerate or freeze it. Reheat and serve.\n\n**Food Safety Notes:**\n\n* Always handle raw meat safely by washing your hands before and after handling the lamb.\n* Cook the lamb to an internal temperature of at least 145\u00b0F (63\u00b0C) for medium-rare, 160\u00b0F (71\u00b0C) for medium, or 170\u00b0F (77\u00b0C) for well-done.\n\nEnjoy your delicious and flavorful Lamb's Golden Hour Stew!"
+  },
+  "korean_style_chicken_tacos_1758922051": {
+    "id": "korean_style_chicken_tacos_1758922051",
+    "title": "Korean-Style Chicken Tacos",
+    "description": null,
+    "main_ingredients": [
+      "chicken"
+    ],
+    "all_ingredients": [
+      {
+        "name": "Ingredients:**",
+        "amount": null,
+        "unit": null,
+        "notes": null
+      },
+      {
+        "name": "boneless, skinless chicken breasts, cut into small pieces",
+        "amount": "1",
+        "unit": "pound",
+        "notes": null
+      },
+      {
+        "name": "Gochujang",
+        "amount": "2",
+        "unit": "tablespoons",
+        "notes": "Korean chili paste"
+      },
+      {
+        "name": "soy sauce",
+        "amount": "2",
+        "unit": "tablespoons",
+        "notes": null
+      },
+      {
+        "name": "lime juice",
+        "amount": "2",
+        "unit": "tablespoons",
+        "notes": null
+      },
+      {
+        "name": "garlic, minced",
+        "amount": "2",
+        "unit": "cloves",
+        "notes": null
+      },
+      {
+        "name": "sesame oil",
+        "amount": "1",
+        "unit": "tablespoon",
+        "notes": null
+      },
+      {
+        "name": "ground cumin",
+        "amount": "1",
+        "unit": "teaspoon",
+        "notes": null
+      },
+      {
+        "name": "chopped cilantro",
+        "amount": "1/4",
+        "unit": "cup",
+        "notes": null
+      },
+      {
+        "name": "Salt and pepper to taste",
+        "amount": null,
+        "unit": null,
+        "notes": null
+      },
+      {
+        "name": "corn tortillas",
+        "amount": "8-10",
+        "unit": null,
+        "notes": null
+      },
+      {
+        "name": "Sliced green onions, kimchi slaw , pickled carrots, and crispy garlic for topping (optional)",
+        "amount": null,
+        "unit": null,
+        "notes": "see note"
+      }
+    ],
+    "instructions": [
+      "Instructions:**",
+      "In a large bowl, whisk together Gochujang, soy sauce, lime juice, garlic, sesame oil, cumin, salt, and pepper.",
+      "Add the chicken to the marinade and toss to coat. Cover and refrigerate for at least 2 hours or overnight.",
+      "Preheat a grill or grill pan to medium-high heat. Remove the chicken from the marinade, letting any excess liquid drip off.",
+      "Grill the chicken for 5-7 minutes per side, or until cooked through. Transfer to a plate and let rest for a few minutes.",
+      "Warm the tortillas by wrapping them in a damp paper towel and microwaving for 20-30 seconds.",
+      "Assemble the tacos by slicing the grilled chicken into thin strips and placing it onto a tortilla. Top with cilantro, green onions, kimchi slaw (if using), pickled carrots, and crispy garlic (if desired)."
+    ],
+    "prep_time_minutes": null,
+    "cook_time_minutes": null,
+    "total_time_minutes": null,
+    "servings": 4,
+    "difficulty": "medium",
+    "cuisine_type": null,
+    "meal_type": [],
+    "dietary_tags": [],
+    "nutrition": {
+      "calories": 350,
+      "protein_g": 6.0,
+      "carbs_g": 25.0,
+      "fat_g": 6.0,
+      "fiber_g": null,
+      "sugar_g": null,
+      "sodium_mg": null,
+      "vitamins": {},
+      "minerals": {},
+      "health_notes": [
+        "health benefits of main ingredients:",
+        "chicken breast:** rich in lean protein, b vitamins, and minerals like potassium and selenium. a good source of omega-6 fatty acids.",
+        "sesame oil:** rich in healthy fats (omega-6), antioxidants, and vitamin e. may help lower cholesterol levels and reduce inflammation."
+      ]
+    },
+    "tips": [
+      "Important Food Safety Note:**",
+      "Always cook chicken to an internal temperature of at least 165\u00b0F (74\u00b0C) to ensure food safety.",
+      "Tips and Variations:**",
+      "For a spicy kick, add diced jalape\u00f1os or serrano peppers to the marinade.",
+      "Substitute Greek yogurt or sour cream for the lime juice in the marinade for a creamier flavor.",
+      "Add some crunch by topping with toasted sesame seeds or chopped peanuts.",
+      "Experiment with different types of kimchi slaw or pickled carrots for added texture and flavor.",
+      "Note:** For kimchi slaw, mix 1 cup of store-bought or homemade kimchi with 2 tablespoons of mayonnaise and 1 tablespoon of lime juice. Refrigerate until ready to use."
+    ],
+    "created_at": "2025-09-26T17:27:31.436169",
+    "raw_text": "**Korean-Style Chicken Tacos**\n\nServing size: 4-6 tacos\n\n**Ingredients:**\n\n* 1 pound boneless, skinless chicken breasts, cut into small pieces\n* 2 tablespoons Gochujang (Korean chili paste)\n* 2 tablespoons soy sauce\n* 2 tablespoons lime juice\n* 2 cloves garlic, minced\n* 1 tablespoon sesame oil\n* 1 teaspoon ground cumin\n* 1/4 cup chopped cilantro\n* Salt and pepper to taste\n* 8-10 corn tortillas\n* Sliced green onions, kimchi slaw (see note), pickled carrots, and crispy garlic for topping (optional)\n\n**Instructions:**\n\n1. In a large bowl, whisk together Gochujang, soy sauce, lime juice, garlic, sesame oil, cumin, salt, and pepper.\n2. Add the chicken to the marinade and toss to coat. Cover and refrigerate for at least 2 hours or overnight.\n3. Preheat a grill or grill pan to medium-high heat. Remove the chicken from the marinade, letting any excess liquid drip off.\n4. Grill the chicken for 5-7 minutes per side, or until cooked through. Transfer to a plate and let rest for a few minutes.\n5. Warm the tortillas by wrapping them in a damp paper towel and microwaving for 20-30 seconds.\n6. Assemble the tacos by slicing the grilled chicken into thin strips and placing it onto a tortilla. Top with cilantro, green onions, kimchi slaw (if using), pickled carrots, and crispy garlic (if desired).\n\n**Important Food Safety Note:**\n\n* Always cook chicken to an internal temperature of at least 165\u00b0F (74\u00b0C) to ensure food safety.\n\n**Tips and Variations:**\n\n* For a spicy kick, add diced jalape\u00f1os or serrano peppers to the marinade.\n* Substitute Greek yogurt or sour cream for the lime juice in the marinade for a creamier flavor.\n* Add some crunch by topping with toasted sesame seeds or chopped peanuts.\n* Experiment with different types of kimchi slaw or pickled carrots for added texture and flavor.\n\n**Note:** For kimchi slaw, mix 1 cup of store-bought or homemade kimchi with 2 tablespoons of mayonnaise and 1 tablespoon of lime juice. Refrigerate until ready to use."
+  },
+  "korean_style_beef_and_vegetable_bibimbap_1758922417": {
+    "id": "korean_style_beef_and_vegetable_bibimbap_1758922417",
+    "title": "Korean-Style Beef and Vegetable Bibimbap",
+    "description": null,
+    "main_ingredients": [
+      "beef"
+    ],
+    "all_ingredients": [
+      {
+        "name": "Ingredients:**",
+        "amount": null,
+        "unit": null,
+        "notes": null
+      },
+      {
+        "name": "beef , sliced into thin strips",
+        "amount": "1",
+        "unit": "pound",
+        "notes": "sirloin or ribeye"
+      },
+      {
+        "name": "Gochujang",
+        "amount": "2",
+        "unit": "tablespoons",
+        "notes": "Korean chili paste"
+      },
+      {
+        "name": "soy sauce",
+        "amount": "2",
+        "unit": "tablespoons",
+        "notes": null
+      },
+      {
+        "name": "rice vinegar",
+        "amount": "2",
+        "unit": "tablespoons",
+        "notes": null
+      },
+      {
+        "name": "vegetable oil",
+        "amount": "1",
+        "unit": "tablespoon",
+        "notes": null
+      },
+      {
+        "name": "onion, thinly sliced",
+        "amount": "1",
+        "unit": null,
+        "notes": null
+      },
+      {
+        "name": "garlic, minced",
+        "amount": "2",
+        "unit": "cloves",
+        "notes": null
+      },
+      {
+        "name": "mixed vegetables",
+        "amount": "1",
+        "unit": "cup",
+        "notes": " bean sprouts, shredded carrots, diced bell peppers, and chopped mushrooms"
+      },
+      {
+        "name": "cooked white rice",
+        "amount": "4",
+        "unit": "cups",
+        "notes": null
+      },
+      {
+        "name": "Salt and black pepper to taste",
+        "amount": null,
+        "unit": null,
+        "notes": null
+      },
+      {
+        "name": "Chopped green onions and toasted sesame seeds for garnish",
+        "amount": null,
+        "unit": null,
+        "notes": "optional"
+      }
+    ],
+    "instructions": [
+      "Instructions:**",
+      "In a large bowl, whisk together Gochujang, soy sauce, and rice vinegar. Add the sliced beef and marinate for at least 30 minutes, or up to 2 hours in the refrigerator.",
+      "Heat the vegetable oil in a large skillet over medium-high heat. Remove the beef from the marinade, letting any excess liquid drip off. Cook the beef for 3-4 minutes per side, or until it reaches your desired level of doneness. Transfer the cooked beef to a plate and set aside.",
+      "In the same skillet, add the sliced onion and cook for 5 minutes, or until it's translucent and starting to caramelize. Add the minced garlic and cook for an additional minute, stirring constantly to prevent burning.",
+      "Add the mixed vegetables to the skillet and cook for 2-3 minutes, or until they're tender-crisp. Season with salt and black pepper to taste.",
+      "To assemble the bibimbap, place a scoop of cooked white rice onto a serving plate or bowl. Arrange the cooked beef, onion mixture, and mixed vegetables on top of the rice in a harmonious pattern.",
+      "Garnish with chopped green onions and toasted sesame seeds, if desired."
+    ],
+    "prep_time_minutes": null,
+    "cook_time_minutes": null,
+    "total_time_minutes": null,
+    "servings": 4,
+    "difficulty": "medium",
+    "cuisine_type": null,
+    "meal_type": [],
+    "dietary_tags": [],
+    "nutrition": null,
+    "tips": [
+      "Tips and Variations:**",
+      "For an added crunch, sprinkle some crispy fried shallots on top of your bibimbap before serving.",
+      "Substitute other vegetables like zucchini, spinach, or shredded potatoes to suit your taste preferences.",
+      "If you prefer a spicier dish, add more Gochujang to the marinade or use hot sauce as a finishing touch.",
+      "Make extra rice and store it in an airtight container for up to 3 days. Reheat as needed.",
+      "Food Safety Notes:**",
+      "Always handle raw meat safely by washing your hands before and after handling, and cooking to the recommended internal temperature (145\u00b0F / 63\u00b0C).",
+      "Refrigerate cooked bibimbap at 40\u00b0F (4\u00b0C) or below within 2 hours of preparation.",
+      "Reheat leftovers to an internal temperature of 165\u00b0F (74\u00b0C) before serving."
+    ],
+    "created_at": "2025-09-26T17:33:37.592671",
+    "raw_text": "**Korean-Style Beef and Vegetable Bibimbap**\n\n**Serves:** 4-6 individuals\n\n**Ingredients:**\n- 1 pound beef (sirloin or ribeye), sliced into thin strips\n- 2 tablespoons Gochujang (Korean chili paste)\n- 2 tablespoons soy sauce\n- 2 tablespoons rice vinegar\n- 1 tablespoon vegetable oil\n- 1 onion, thinly sliced\n- 2 cloves garlic, minced\n- 1 cup mixed vegetables ( bean sprouts, shredded carrots, diced bell peppers, and chopped mushrooms)\n- 4 cups cooked white rice\n- Salt and black pepper to taste\n- Chopped green onions and toasted sesame seeds for garnish (optional)\n\n**Instructions:**\n\n1. In a large bowl, whisk together Gochujang, soy sauce, and rice vinegar. Add the sliced beef and marinate for at least 30 minutes, or up to 2 hours in the refrigerator.\n2. Heat the vegetable oil in a large skillet over medium-high heat. Remove the beef from the marinade, letting any excess liquid drip off. Cook the beef for 3-4 minutes per side, or until it reaches your desired level of doneness. Transfer the cooked beef to a plate and set aside.\n3. In the same skillet, add the sliced onion and cook for 5 minutes, or until it's translucent and starting to caramelize. Add the minced garlic and cook for an additional minute, stirring constantly to prevent burning.\n4. Add the mixed vegetables to the skillet and cook for 2-3 minutes, or until they're tender-crisp. Season with salt and black pepper to taste.\n5. To assemble the bibimbap, place a scoop of cooked white rice onto a serving plate or bowl. Arrange the cooked beef, onion mixture, and mixed vegetables on top of the rice in a harmonious pattern.\n6. Garnish with chopped green onions and toasted sesame seeds, if desired.\n\n**Tips and Variations:**\n\n* For an added crunch, sprinkle some crispy fried shallots on top of your bibimbap before serving.\n* Substitute other vegetables like zucchini, spinach, or shredded potatoes to suit your taste preferences.\n* If you prefer a spicier dish, add more Gochujang to the marinade or use hot sauce as a finishing touch.\n* Make extra rice and store it in an airtight container for up to 3 days. Reheat as needed.\n\n**Food Safety Notes:**\n\n* Always handle raw meat safely by washing your hands before and after handling, and cooking to the recommended internal temperature (145\u00b0F / 63\u00b0C).\n* Refrigerate cooked bibimbap at 40\u00b0F (4\u00b0C) or below within 2 hours of preparation.\n* Reheat leftovers to an internal temperature of 165\u00b0F (74\u00b0C) before serving."
+  },
+  "korean_style_beef_and_kimchi_fried_rice_1758922516": {
+    "id": "korean_style_beef_and_kimchi_fried_rice_1758922516",
+    "title": "Korean-Style Beef and Kimchi Fried Rice",
+    "description": null,
+    "main_ingredients": [
+      "beef"
+    ],
+    "all_ingredients": [
+      {
+        "name": "Ingredients:**",
+        "amount": null,
+        "unit": null,
+        "notes": null
+      },
+      {
+        "name": "beef , sliced into thin strips",
+        "amount": "1",
+        "unit": "pound",
+        "notes": "sirloin or ribeye"
+      },
+      {
+        "name": "cooked rice",
+        "amount": "2",
+        "unit": "cups",
+        "notes": "preferably day-old"
+      },
+      {
+        "name": "kimchi, chopped",
+        "amount": "1",
+        "unit": "cup",
+        "notes": null
+      },
+      {
+        "name": "vegetable oil",
+        "amount": "2",
+        "unit": "tablespoons",
+        "notes": null
+      },
+      {
+        "name": "small onion, diced",
+        "amount": "1",
+        "unit": null,
+        "notes": null
+      },
+      {
+        "name": "garlic, minced",
+        "amount": "2",
+        "unit": "cloves",
+        "notes": null
+      },
+      {
+        "name": "grated fresh ginger",
+        "amount": "1",
+        "unit": "teaspoon",
+        "notes": null
+      },
+      {
+        "name": "soy sauce",
+        "amount": "1",
+        "unit": "tablespoon",
+        "notes": null
+      },
+      {
+        "name": "Gochujang",
+        "amount": "1",
+        "unit": "tablespoon",
+        "notes": "Korean chili paste"
+      },
+      {
+        "name": "sesame oil",
+        "amount": "1",
+        "unit": "teaspoon",
+        "notes": null
+      },
+      {
+        "name": "Salt and pepper to taste",
+        "amount": null,
+        "unit": null,
+        "notes": null
+      },
+      {
+        "name": "Scallions, chopped",
+        "amount": null,
+        "unit": null,
+        "notes": "optional"
+      }
+    ],
+    "instructions": [
+      "Instructions:**",
+      "Heat 1 tablespoon of vegetable oil in a large skillet or wok over medium-high heat.",
+      "Add the beef strips and cook for 3-4 minutes, or until browned and cooked through. Remove from the skillet and set aside.",
+      "In the same skillet, add the remaining 1 tablespoon of vegetable oil. Add the diced onion and minced garlic; cook for 2-3 minutes, or until the onion is translucent.",
+      "Add the grated ginger and cook for an additional minute, stirring constantly to prevent burning.",
+      "Add the cooked rice to the skillet, breaking up any clumps with a spatula. Cook for 2-3 minutes, stirring frequently, until the rice is heated through and starting to brown.",
+      "Stir in the soy sauce, Gochujang, and sesame oil. Cook for an additional minute, until the flavors are well combined.",
+      "Add the cooked beef back into the skillet and stir to combine with the rice mixture.",
+      "Stir in the chopped kimchi and cook for an additional 2-3 minutes, until heated through and well combined with the beef and rice."
+    ],
+    "prep_time_minutes": null,
+    "cook_time_minutes": null,
+    "total_time_minutes": null,
+    "servings": 4,
+    "difficulty": "medium",
+    "cuisine_type": null,
+    "meal_type": [],
+    "dietary_tags": [],
+    "nutrition": null,
+    "tips": [
+      "Tips and Variations:**",
+      "For an extra crispy texture, add a beaten egg to the rice mixture before cooking and scramble it into the dish.",
+      "Substitute other types of protein, such as chicken or tofu, for a vegetarian option.",
+      "Add diced bell peppers or mushrooms to the skillet with the onion and garlic for added flavor and nutrients.",
+      "Serve with additional kimchi on top, if desired, or add pickled ginger slices for an extra pop of flavor.",
+      "Food Safety Notes:**",
+      "Cook the beef to an internal temperature of at least 145\u00b0F (63\u00b0C) to ensure food safety.",
+      "Use cooked rice that is at room temperature or cooler before adding it to the skillet. This will help prevent bacterial growth and keep the dish safe to eat.",
+      "Handle kimchi with care, as it can be high in sodium and may not be suitable for those with certain dietary restrictions."
+    ],
+    "created_at": "2025-09-26T17:35:16.616905",
+    "raw_text": "**Korean-Style Beef and Kimchi Fried Rice**\n\nServing size: 4-6 servings\n\n**Ingredients:**\n\n* 1 pound beef (sirloin or ribeye), sliced into thin strips\n* 2 cups cooked rice (preferably day-old)\n* 1 cup kimchi, chopped\n* 2 tablespoons vegetable oil\n* 1 small onion, diced\n* 2 cloves garlic, minced\n* 1 teaspoon grated fresh ginger\n* 1 tablespoon soy sauce\n* 1 tablespoon Gochujang (Korean chili paste)\n* 1 teaspoon sesame oil\n* Salt and pepper to taste\n* Scallions, chopped (optional)\n\n**Instructions:**\n\n1. Heat 1 tablespoon of vegetable oil in a large skillet or wok over medium-high heat.\n2. Add the beef strips and cook for 3-4 minutes, or until browned and cooked through. Remove from the skillet and set aside.\n3. In the same skillet, add the remaining 1 tablespoon of vegetable oil. Add the diced onion and minced garlic; cook for 2-3 minutes, or until the onion is translucent.\n4. Add the grated ginger and cook for an additional minute, stirring constantly to prevent burning.\n5. Add the cooked rice to the skillet, breaking up any clumps with a spatula. Cook for 2-3 minutes, stirring frequently, until the rice is heated through and starting to brown.\n6. Stir in the soy sauce, Gochujang, and sesame oil. Cook for an additional minute, until the flavors are well combined.\n7. Add the cooked beef back into the skillet and stir to combine with the rice mixture.\n8. Stir in the chopped kimchi and cook for an additional 2-3 minutes, until heated through and well combined with the beef and rice.\n\n**Tips and Variations:**\n\n* For an extra crispy texture, add a beaten egg to the rice mixture before cooking and scramble it into the dish.\n* Substitute other types of protein, such as chicken or tofu, for a vegetarian option.\n* Add diced bell peppers or mushrooms to the skillet with the onion and garlic for added flavor and nutrients.\n* Serve with additional kimchi on top, if desired, or add pickled ginger slices for an extra pop of flavor.\n\n**Food Safety Notes:**\n\n* Cook the beef to an internal temperature of at least 145\u00b0F (63\u00b0C) to ensure food safety.\n* Use cooked rice that is at room temperature or cooler before adding it to the skillet. This will help prevent bacterial growth and keep the dish safe to eat.\n* Handle kimchi with care, as it can be high in sodium and may not be suitable for those with certain dietary restrictions."
+  },
+  "citrus_herb_crusted_salmon_with_lemon_dill_quinoa_1758923326": {
+    "id": "citrus_herb_crusted_salmon_with_lemon_dill_quinoa_1758923326",
+    "title": "Citrus-Herb Crusted Salmon with Lemon-Dill Quinoa",
+    "description": null,
+    "main_ingredients": [
+      "salmon"
+    ],
+    "all_ingredients": [
+      {
+        "name": "Ingredients:**",
+        "amount": null,
+        "unit": null,
+        "notes": null
+      },
+      {
+        "name": "salmon fillets",
+        "amount": "4",
+        "unit": null,
+        "notes": "6 oz each"
+      },
+      {
+        "name": "freshly squeezed lemon juice",
+        "amount": "1/2",
+        "unit": "cup",
+        "notes": null
+      },
+      {
+        "name": "olive oil",
+        "amount": "1/4",
+        "unit": "cup",
+        "notes": null
+      },
+      {
+        "name": "chopped fresh rosemary",
+        "amount": "2",
+        "unit": "tbsp",
+        "notes": null
+      },
+      {
+        "name": "chopped fresh thyme",
+        "amount": "2",
+        "unit": "tbsp",
+        "notes": null
+      },
+      {
+        "name": "garlic, minced",
+        "amount": "2",
+        "unit": "cloves",
+        "notes": null
+      },
+      {
+        "name": "salt",
+        "amount": "1",
+        "unit": "tsp",
+        "notes": null
+      },
+      {
+        "name": "black pepper",
+        "amount": "1/2",
+        "unit": "tsp",
+        "notes": null
+      },
+      {
+        "name": "cooked quinoa",
+        "amount": "1",
+        "unit": "cup",
+        "notes": null
+      },
+      {
+        "name": "water or vegetable broth",
+        "amount": "2",
+        "unit": "cups",
+        "notes": null
+      },
+      {
+        "name": "freshly chopped dill",
+        "amount": "2",
+        "unit": "tbsp",
+        "notes": null
+      },
+      {
+        "name": "lemons, sliced",
+        "amount": "2",
+        "unit": null,
+        "notes": "for garnish"
+      }
+    ],
+    "instructions": [
+      "Instructions:**",
+      "Preheat the oven to 400\u00b0F (200\u00b0C).",
+      "In a small bowl, whisk together lemon juice, olive oil, rosemary, thyme, garlic, salt, and pepper.",
+      "Place the salmon fillets on a large plate or tray. Brush the citrus-herb mixture evenly onto both sides of the salmon, making sure they're fully coated.",
+      "Heat a non-stick skillet over medium-high heat. Add 1 tablespoon of olive oil and sear the salmon for 2-3 minutes per side, or until cooked to your desired level of doneness.",
+      "Transfer the skillet to the preheated oven and bake for an additional 8-10 minutes, or until the salmon is cooked through.",
+      "While the salmon cooks, prepare the quinoa. In a medium saucepan, bring the water or broth to a boil. Add the quinoa, cover, reduce heat to low, and simmer for about 15-20 minutes, or until the quinoa is tender and fluffy.",
+      "Fluff the cooked quinoa with a fork and stir in chopped fresh dill."
+    ],
+    "prep_time_minutes": null,
+    "cook_time_minutes": null,
+    "total_time_minutes": null,
+    "servings": 4,
+    "difficulty": "medium",
+    "cuisine_type": null,
+    "meal_type": [],
+    "dietary_tags": [],
+    "nutrition": null,
+    "tips": [
+      "Tips and Variations:**",
+      "For an added pop of color, garnish with sliced lemons and fresh herbs like parsley or basil.",
+      "Substitute the quinoa with cooked brown rice or farro for a different texture and flavor profile.",
+      "To make this recipe more substantial, add some toasted pine nuts or chopped almonds to the quinoa for added crunch.",
+      "Food Safety Notes:**",
+      "Always handle raw fish safely by washing your hands thoroughly before and after handling the salmon.",
+      "Cook the salmon to an internal temperature of at least 145\u00b0F (63\u00b0C) to ensure food safety."
+    ],
+    "created_at": "2025-09-26T17:48:46.565726",
+    "raw_text": "**Citrus-Herb Crusted Salmon with Lemon-Dill Quinoa**\n\n**Servings:** 4\n\n**Ingredients:**\n\n* 4 salmon fillets (6 oz each)\n* 1/2 cup freshly squeezed lemon juice\n* 1/4 cup olive oil\n* 2 tbsp chopped fresh rosemary\n* 2 tbsp chopped fresh thyme\n* 2 cloves garlic, minced\n* 1 tsp salt\n* 1/2 tsp black pepper\n* 1 cup cooked quinoa\n* 2 cups water or vegetable broth\n* 2 tbsp freshly chopped dill\n* 2 lemons, sliced (for garnish)\n\n**Instructions:**\n\n1. Preheat the oven to 400\u00b0F (200\u00b0C).\n2. In a small bowl, whisk together lemon juice, olive oil, rosemary, thyme, garlic, salt, and pepper.\n3. Place the salmon fillets on a large plate or tray. Brush the citrus-herb mixture evenly onto both sides of the salmon, making sure they're fully coated.\n4. Heat a non-stick skillet over medium-high heat. Add 1 tablespoon of olive oil and sear the salmon for 2-3 minutes per side, or until cooked to your desired level of doneness.\n5. Transfer the skillet to the preheated oven and bake for an additional 8-10 minutes, or until the salmon is cooked through.\n6. While the salmon cooks, prepare the quinoa. In a medium saucepan, bring the water or broth to a boil. Add the quinoa, cover, reduce heat to low, and simmer for about 15-20 minutes, or until the quinoa is tender and fluffy.\n7. Fluff the cooked quinoa with a fork and stir in chopped fresh dill.\n\n**Tips and Variations:**\n\n* For an added pop of color, garnish with sliced lemons and fresh herbs like parsley or basil.\n* Substitute the quinoa with cooked brown rice or farro for a different texture and flavor profile.\n* To make this recipe more substantial, add some toasted pine nuts or chopped almonds to the quinoa for added crunch.\n\n**Food Safety Notes:**\n\n* Always handle raw fish safely by washing your hands thoroughly before and after handling the salmon.\n* Cook the salmon to an internal temperature of at least 145\u00b0F (63\u00b0C) to ensure food safety."
+  },
+  "tomato_tango_omelette_1758923372": {
+    "id": "tomato_tango_omelette_1758923372",
+    "title": "Tomato Tango Omelette",
+    "description": null,
+    "main_ingredients": [
+      "tomato",
+      "eggs"
+    ],
+    "all_ingredients": [
+      {
+        "name": "Ingredients:**",
+        "amount": null,
+        "unit": null,
+        "notes": null
+      },
+      {
+        "name": "large eggs",
+        "amount": "8",
+        "unit": null,
+        "notes": null
+      },
+      {
+        "name": "large tomatoes, diced",
+        "amount": "2",
+        "unit": null,
+        "notes": null
+      },
+      {
+        "name": "olive oil",
+        "amount": "1",
+        "unit": "tablespoon",
+        "notes": null
+      },
+      {
+        "name": "Salt and pepper to taste",
+        "amount": null,
+        "unit": null,
+        "notes": null
+      },
+      {
+        "name": "Fresh parsley or basil leaves for garnish",
+        "amount": null,
+        "unit": null,
+        "notes": "optional"
+      },
+      {
+        "name": "shredded cheddar cheese",
+        "amount": "1/4",
+        "unit": "cup",
+        "notes": "optional"
+      },
+      {
+        "name": "paprika",
+        "amount": "1/4",
+        "unit": "teaspoon",
+        "notes": null
+      }
+    ],
+    "instructions": [
+      "Instructions:**",
+      "Preheat a non-stick skillet or omelette pan over medium heat.",
+      "In a bowl, whisk together eggs and a pinch of salt until well combined.",
+      "Add the olive oil to the preheated skillet and swirl it around to coat the surface.",
+      "Pour in the egg mixture and let it cook for about 30 seconds, until the edges start to set.",
+      "Sprinkle the diced tomatoes over half of the omelette.",
+      "Use a spatula to gently lift and fold the other half of the omelette over the tomatoes.",
+      "Cook for an additional 1-2 minutes, until the eggs are almost set and the cheese is melted (if using).",
+      "Slide the omelette onto a plate and garnish with fresh parsley or basil leaves (if desired)."
+    ],
+    "prep_time_minutes": null,
+    "cook_time_minutes": null,
+    "total_time_minutes": null,
+    "servings": 4,
+    "difficulty": "medium",
+    "cuisine_type": null,
+    "meal_type": [],
+    "dietary_tags": [],
+    "nutrition": null,
+    "tips": [
+      "Tips and Variations:**",
+      "For an added burst of flavor, sprinkle some chopped garlic or onion over the tomatoes before folding the omelette.",
+      "Replace cheddar cheese with feta or goat cheese for a tangier twist.",
+      "Use ripe but firm tomatoes for the best texture and flavor.",
+      "Don't overcrowd the skillet; cook in batches if needed to ensure even cooking.",
+      "Food Safety Notes:**",
+      "Always handle eggs safely by washing your hands before and after handling them, and keeping them refrigerated at 40\u00b0F (4\u00b0C) or below until use.",
+      "Cook omelettes to an internal temperature of at least 160\u00b0F (71\u00b0C) to ensure food safety."
+    ],
+    "created_at": "2025-09-26T17:49:32.113253",
+    "raw_text": "**Tomato Tango Omelette**\n\n**Serving size:** 4-6 eggs per serving (1 omelette)\n\n**Ingredients:**\n\n* 8 large eggs\n* 2 large tomatoes, diced\n* 1 tablespoon olive oil\n* Salt and pepper to taste\n* Fresh parsley or basil leaves for garnish (optional)\n* 1/4 cup shredded cheddar cheese (optional)\n* 1/4 teaspoon paprika\n\n**Instructions:**\n\n1. Preheat a non-stick skillet or omelette pan over medium heat.\n2. In a bowl, whisk together eggs and a pinch of salt until well combined.\n3. Add the olive oil to the preheated skillet and swirl it around to coat the surface.\n4. Pour in the egg mixture and let it cook for about 30 seconds, until the edges start to set.\n5. Sprinkle the diced tomatoes over half of the omelette.\n6. Use a spatula to gently lift and fold the other half of the omelette over the tomatoes.\n7. Cook for an additional 1-2 minutes, until the eggs are almost set and the cheese is melted (if using).\n8. Slide the omelette onto a plate and garnish with fresh parsley or basil leaves (if desired).\n\n**Tips and Variations:**\n\n* For an added burst of flavor, sprinkle some chopped garlic or onion over the tomatoes before folding the omelette.\n* Replace cheddar cheese with feta or goat cheese for a tangier twist.\n* Use ripe but firm tomatoes for the best texture and flavor.\n* Don't overcrowd the skillet; cook in batches if needed to ensure even cooking.\n\n**Food Safety Notes:**\n\n* Always handle eggs safely by washing your hands before and after handling them, and keeping them refrigerated at 40\u00b0F (4\u00b0C) or below until use.\n* Cook omelettes to an internal temperature of at least 160\u00b0F (71\u00b0C) to ensure food safety."
   }
 }

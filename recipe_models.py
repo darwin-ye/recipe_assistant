@@ -82,10 +82,10 @@ class Recipe(BaseModel):
         """Convert recipe to a nicely formatted display string"""
         output = []
         output.append(f"**{self.title}**")
-        
+
         if self.description:
             output.append(f"\n{self.description}")
-        
+
         # Time info
         time_info = []
         if self.prep_time_minutes:
@@ -94,32 +94,49 @@ class Recipe(BaseModel):
             time_info.append(f"Cook: {self.cook_time_minutes} min")
         if time_info:
             output.append(f"\n⏱️ {' | '.join(time_info)} | Servings: {self.servings}")
-        
+        else:
+            output.append(f"\n⏱️ Servings: {self.servings}")
+
         # Ingredients
         output.append("\n**Ingredients:**")
         if self.all_ingredients:
             for ing in self.all_ingredients:
-                output.append(f"• {str(ing)}")
+                # Filter out section headers and malformed ingredients
+                ing_str = str(ing).strip()
+                if (ing_str and
+                    not ing_str.lower().endswith(':**') and
+                    not ing_str.lower() in ['ingredients', 'instructions', 'tips'] and
+                    len(ing_str) > 2):
+                    output.append(f"• {ing_str}")
         else:
             # Fallback if we only have main ingredients
             for ing in self.main_ingredients:
                 output.append(f"• {ing}")
-        
+
         # Instructions
         output.append("\n**Instructions:**")
         for i, instruction in enumerate(self.instructions, 1):
-            output.append(f"{i}. {instruction}")
-        
+            # Filter out section headers from instructions too
+            if (instruction.strip() and
+                not instruction.strip().lower().endswith(':**') and
+                not instruction.strip().lower() in ['instructions', 'tips', 'ingredients'] and
+                len(instruction.strip()) > 5):
+                output.append(f"{i}. {instruction}")
+
         # Tips
         if self.tips:
             output.append("\n**Tips:**")
             for tip in self.tips:
-                output.append(f"• {tip}")
-        
+                tip_str = tip.strip()
+                if (tip_str and
+                    not tip_str.lower().endswith(':**') and
+                    len(tip_str) > 3):
+                    output.append(f"• {tip_str}")
+
         # Dietary tags
         if self.dietary_tags:
             output.append(f"\n**Dietary Info:** {', '.join(self.dietary_tags)}")
-        
+
         return "\n".join(output)
     
     def to_nutrition_string(self) -> str:
@@ -223,15 +240,19 @@ class RecipeParser:
             if current_section == 'ingredients':
                 # Remove bullet points and parse
                 clean_line = re.sub(r'^[\s•*\-–]+', '', line_stripped).strip()
-                if clean_line and len(clean_line) > 2:  # Avoid single characters
+                # Skip section headers like "Ingredients:**" or just "Ingredients"
+                if (clean_line and len(clean_line) > 2 and
+                    not re.match(r'^(ingredients?|you will need|you\'ll need)[:*]*$', clean_line.lower())):
                     ing = RecipeParser._parse_ingredient_line(clean_line)
                     if ing.name and ing.name != main_ingredients:  # Don't duplicate main ingredient
                         ingredients.append(ing)
-                    
+
             elif current_section == 'instructions':
                 # Remove numbering and bullet points
                 clean_line = re.sub(r'^[\d.)\s•*\-–]+', '', line_stripped).strip()
-                if clean_line and len(clean_line) > 5:  # Avoid too short instructions
+                # Skip section headers like "Instructions:**" or just "Instructions"
+                if (clean_line and len(clean_line) > 5 and
+                    not re.match(r'^(instructions?|steps?|methods?|directions?)[:*]*$', clean_line.lower())):
                     instructions.append(clean_line)
                     
             elif current_section == 'tips':
