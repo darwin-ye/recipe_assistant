@@ -13,7 +13,7 @@ from typing import Annotated
 
 from llm import llm
 from recipe_models import RecipeDatabase
-from simple_react_agent import SimpleReActAgent
+from multi_action_react_agent import MultiActionReActAgent
 
 # ========================================================================
 # 1. SIMPLIFIED STATE
@@ -26,7 +26,7 @@ class ConversationState(TypedDict):
 
 # Initialize components
 recipe_database = RecipeDatabase()
-react_agent = SimpleReActAgent(llm)
+react_agent = MultiActionReActAgent(llm)
 
 # ========================================================================
 # 2. SINGLE CONVERSATION NODE
@@ -40,13 +40,13 @@ def react_conversation_node(state: ConversationState):
         print("Welcome to your AI Recipe Assistant!")
         print("=" * 50)
         print(f"I have {len(recipe_database.recipes)} recipes available")
-        print("Simplified ReAct with fallback to menu-driven mode")
-        print("Ask me naturally or I'll offer clear menu options!")
+        print("Multi-Action ReAct Agent - Handles complex multi-step requests!")
+        print("Ask me naturally with multiple actions:")
         print("   Examples:")
-        print("   - 'Create a recipe with chicken and tomatoes'")
-        print("   - 'Show me recent recipes'")
-        print("   - 'Find pasta recipes'")
-        print("   - 'Help' (shows all options)")
+        print("   - 'Find my most frequent recipe and scale it to 10 people'")
+        print("   - 'Show me recent pasta recipes and count how many use tomatoes'")
+        print("   - 'Create a chicken recipe then scale it to 6 servings'")
+        print("   - 'Search for Italian recipes and get details of the first one'")
         print("=" * 50)
     else:
         # Check for exit keywords
@@ -66,9 +66,10 @@ def react_conversation_node(state: ConversationState):
     print("-" * 40)
 
     try:
-        # Use simplified ReAct agent with current recipe context
+        # Use multi-action ReAct agent with current recipe context
         current_recipe = state.get("current_recipe")
-        response = react_agent.run(user_input, current_recipe)
+        react_agent.current_recipe = current_recipe
+        response = react_agent.process_request(user_input)
         formatted_response = f"Assistant: {response}"
 
         # Update current recipe if one was set during execution
